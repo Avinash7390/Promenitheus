@@ -48,6 +48,11 @@ Clone the repository and build the binaries:
 ```bash
 git clone https://github.com/Avinash7390/Promenitheus.git
 cd Promenitheus
+
+# Using Make (recommended)
+make build
+
+# Or manually
 go build -o bin/promenitheus ./cmd/promenitheus
 go build -o bin/example-target ./cmd/example-target
 ```
@@ -57,12 +62,20 @@ go build -o bin/example-target ./cmd/example-target
 1. Start the example target service (exposes sample metrics):
 
 ```bash
+# Using Make
+make run-target
+
+# Or manually
 ./bin/example-target --port 8080
 ```
 
 2. In another terminal, start Promenitheus with the sample configuration:
 
 ```bash
+# Using Make
+make run-scraper
+
+# Or manually
 ./bin/promenitheus --config config.yaml --port 9090
 ```
 
@@ -160,7 +173,19 @@ go test ./... -v
 ### Building
 
 ```bash
-# Build both binaries
+# Build both binaries using Make
+make build
+
+# Run tests
+make test
+
+# Clean build artifacts
+make clean
+
+# See all available targets
+make help
+
+# Or build manually
 go build -o bin/promenitheus ./cmd/promenitheus
 go build -o bin/example-target ./cmd/example-target
 
