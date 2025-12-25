@@ -30,3 +30,9 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Build directory
+bin/
+
+# Third-party dependencies
+third_party/
