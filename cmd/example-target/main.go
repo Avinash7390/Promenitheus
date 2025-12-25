@@ -12,11 +12,8 @@ import (
 var (
 	requestCount uint64
 	errorCount   uint64
+	rng          = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func main() {
 	port := flag.Int("port", 8080, "Port to expose metrics on")
@@ -28,8 +25,8 @@ func main() {
 		defer ticker.Stop()
 
 		for range ticker.C {
-			atomic.AddUint64(&requestCount, uint64(rand.Intn(10)+1))
-			if rand.Float64() < 0.2 {
+			atomic.AddUint64(&requestCount, uint64(rng.Intn(10)+1))
+			if rng.Float64() < 0.2 {
 				atomic.AddUint64(&errorCount, 1)
 			}
 		}
@@ -79,13 +76,13 @@ func handleMetrics(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "# HELP memory_usage_bytes Current memory usage in bytes\n")
 	fmt.Fprintf(w, "# TYPE memory_usage_bytes gauge\n")
-	fmt.Fprintf(w, "memory_usage_bytes %d\n", rand.Int63n(1000000000)+500000000)
+	fmt.Fprintf(w, "memory_usage_bytes %d\n", rng.Int63n(1000000000)+500000000)
 
 	fmt.Fprintf(w, "# HELP cpu_usage_percent Current CPU usage percentage\n")
 	fmt.Fprintf(w, "# TYPE cpu_usage_percent gauge\n")
-	fmt.Fprintf(w, "cpu_usage_percent %.2f\n", rand.Float64()*100)
+	fmt.Fprintf(w, "cpu_usage_percent %.2f\n", rng.Float64()*100)
 
 	fmt.Fprintf(w, "# HELP active_connections Number of active connections\n")
 	fmt.Fprintf(w, "# TYPE active_connections gauge\n")
-	fmt.Fprintf(w, "active_connections %d\n", rand.Intn(100)+10)
+	fmt.Fprintf(w, "active_connections %d\n", rng.Intn(100)+10)
 }
