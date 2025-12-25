@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package promenitheus.v1;
+
+option go_package = "github.com/Avinash7390/Promenitheus/api/proto/v1;prometnitheusv1";
+
+// MetricsService provides access to scraped metrics
+service MetricsService {
+  // GetMetrics returns all metrics in Prometheus text format
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+
+  // QueryMetrics queries metrics by name
+  rpc QueryMetrics(QueryMetricsRequest) returns (QueryMetricsResponse);
+
+  // ListMetrics returns all metrics in structured format
+  rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse);
+}
+
+message GetMetricsRequest {}
+
+message GetMetricsResponse {
+  string content = 1;  // Prometheus text format
+  string content_type = 2;
+}
+
+message QueryMetricsRequest {
+  string query = 1;  // Metric name to filter by
+}
+
+message QueryMetricsResponse {
+  string status = 1;
+  repeated Metric data = 2;
+}
+
+message ListMetricsRequest {
+  string filter = 1;  // Optional filter by metric name
+}
+
+message ListMetricsResponse {
+  repeated Metric metrics = 1;
+}
+
+message Metric {
+  string name = 1;
+  string type = 2;  // counter or gauge
+  double value = 3;
+  map<string, string> labels = 4;
+  int64 timestamp = 5;  // Unix timestamp in seconds
+}

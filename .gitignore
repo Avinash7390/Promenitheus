@@ -33,3 +33,6 @@ go.work.sum
 
 # Build directory
 bin/
+
+# Third-party dependencies
+third_party/

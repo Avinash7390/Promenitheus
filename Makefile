@@ -1,9 +1,11 @@
-.PHONY: build test clean run-target run-scraper help
+.PHONY: build test clean run-target run-scraper proto help
 
 # Build variables
 BINARY_DIR=bin
 PROMENITHEUS_BINARY=$(BINARY_DIR)/promenitheus
 EXAMPLE_TARGET_BINARY=$(BINARY_DIR)/example-target
+PROTO_DIR=api/proto
+PROTO_OUT_DIR=$(PROTO_DIR)/v1
 
 # Default target
 all: build
@@ -47,6 +49,16 @@ deps:
 	@go mod download
 	@go mod tidy
 
+# Generate gRPC code from proto files
+proto:
+	@echo "Generating gRPC code..."
+	@mkdir -p $(PROTO_OUT_DIR)
+	@protoc --proto_path=$(PROTO_DIR) \
+		--go_out=$(PROTO_OUT_DIR) --go_opt=paths=source_relative \
+		--go-grpc_out=$(PROTO_OUT_DIR) --go-grpc_opt=paths=source_relative \
+		$(PROTO_DIR)/metrics.proto
+	@echo "gRPC code generated successfully"
+
 # Show help
 help:
 	@echo "Available targets:"
@@ -56,4 +68,5 @@ help:
 	@echo "  make run-target   - Run example target service"
 	@echo "  make run-scraper  - Run Promenitheus scraper"
 	@echo "  make deps         - Install dependencies"
+	@echo "  make proto        - Generate gRPC code from proto files"
 	@echo "  make help         - Show this help message"

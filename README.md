@@ -8,9 +8,10 @@ A basic Prometheus-like metric scraper written in Go. This project simulates cor
 - 📊 **Metric Types**: Supports counters and gauges
 - 🏷️ **Labels**: Full support for metric labels and label enrichment
 - ⚙️ **Configuration**: YAML-based configuration similar to Prometheus
-- 🌐 **HTTP API**: Exposes collected metrics in Prometheus text format
+- 🌐 **Dual Protocol Support**: Both HTTP and gRPC APIs
 - 🔍 **Query API**: Simple JSON API for querying metrics
 - 📦 **In-Memory Storage**: Fast in-memory metric registry
+- 🔄 **gRPC Reflection**: Built-in reflection for easy service discovery
 
 ## Architecture
 
@@ -30,9 +31,13 @@ A basic Prometheus-like metric scraper written in Go. This project simulates cor
 └────────┬────────┘
          │
          ▼
-┌─────────────────┐
-│  HTTP Server    │ (exposes /metrics and /api/v1/query)
-└─────────────────┘
+┌─────────────────────────────────┐
+│  Dual Protocol Server           │
+│  ├─ HTTP Server (port 9090)     │
+│  │  └─ /metrics, /api/v1/*      │
+│  └─ gRPC Server (port 9091)     │
+│     └─ MetricsService            │
+└─────────────────────────────────┘
 ```
 
 ## Getting Started
@@ -82,11 +87,27 @@ make run-scraper
 3. View the scraped metrics:
 
 ```bash
-# Prometheus format
+# HTTP - Prometheus format
 curl http://localhost:9090/metrics
 
-# JSON format (query API)
+# HTTP - JSON format (query API)
 curl "http://localhost:9090/api/v1/query?query=http_requests_total"
+
+# HTTP - List all metrics in JSON
+curl http://localhost:9090/api/v1/metrics
+
+# gRPC - List services
+grpcurl -plaintext localhost:9091 list
+
+# gRPC - Get metrics in Prometheus format
+grpcurl -plaintext localhost:9091 promenitheus.v1.MetricsService/GetMetrics
+
+# gRPC - Query specific metrics
+grpcurl -plaintext -d '{"query": "http_requests_total"}' \
+  localhost:9091 promenitheus.v1.MetricsService/QueryMetrics
+
+# gRPC - List all metrics
+grpcurl -plaintext localhost:9091 promenitheus.v1.MetricsService/ListMetrics
 ```
 
 ## Configuration
@@ -122,9 +143,35 @@ scrape_configs:
 
 ### Promenitheus Server
 
-- `GET /` - Home page with links
+#### HTTP API (Port 9090 by default)
+
+- `GET /` - Home page with API documentation
 - `GET /metrics` - All collected metrics in Prometheus text format
 - `GET /api/v1/query?query=<metric_name>` - Query specific metrics (JSON format)
+- `GET /api/v1/metrics?filter=<metric_name>` - List all metrics in structured JSON format
+
+#### gRPC API (Port 9091 by default)
+
+The gRPC service is defined in `api/proto/metrics.proto`:
+
+- **MetricsService.GetMetrics** - Returns all metrics in Prometheus text format
+  ```bash
+  grpcurl -plaintext localhost:9091 promenitheus.v1.MetricsService/GetMetrics
+  ```
+
+- **MetricsService.QueryMetrics** - Query metrics by name
+  ```bash
+  grpcurl -plaintext -d '{"query": "metric_name"}' \
+    localhost:9091 promenitheus.v1.MetricsService/QueryMetrics
+  ```
+
+- **MetricsService.ListMetrics** - List all metrics with optional filter
+  ```bash
+  grpcurl -plaintext -d '{"filter": "metric_name"}' \
+    localhost:9091 promenitheus.v1.MetricsService/ListMetrics
+  ```
+
+**Note**: Both HTTP and gRPC servers start automatically. gRPC uses port `HTTP_PORT + 1`.
 
 ### Example Target Service
 
@@ -153,15 +200,20 @@ http_requests_total{method="POST",endpoint="/api"} 567
 
 ```
 .
+├── api/
+│   └── proto/
+│       ├── v1/                 # Generated gRPC code
+│       └── metrics.proto       # Protocol Buffer definitions
 ├── cmd/
-│   ├── promenitheus/       # Main scraper application
-│   └── example-target/     # Example target service
+│   ├── promenitheus/           # Main scraper application
+│   └── example-target/         # Example target service
 ├── pkg/
-│   ├── config/             # Configuration loading
-│   ├── metrics/            # Metric types and registry
-│   ├── scraper/            # HTTP scraping logic
-│   └── storage/            # HTTP server for exposing metrics
-└── config.yaml             # Sample configuration
+│   ├── config/                 # Configuration loading
+│   ├── metrics/                # Metric types and registry
+│   ├── scraper/                # HTTP scraping logic
+│   ├── storage/                # HTTP/gRPC server for exposing metrics
+│   └── grpcserver/             # gRPC service implementation
+└── config.yaml                 # Sample configuration
 ```
 
 ### Running Tests
@@ -221,6 +273,42 @@ This is a simplified implementation for educational purposes. Notable difference
 - **Service Discovery**: Static configuration only
 - **Alerting**: Not implemented
 - **Recording Rules**: Not implemented
+
+## gRPC and HTTP Support
+
+Promenitheus provides **dual protocol support**, allowing you to use either HTTP or gRPC to access metrics:
+
+### Why Both Protocols?
+
+- **HTTP**: Easy to use with curl, web browsers, and standard HTTP clients
+- **gRPC**: Type-safe, efficient binary protocol with built-in streaming support (future feature)
+- **Flexibility**: Choose the protocol that best fits your use case
+
+### Protocol Differences
+
+| Feature | HTTP | gRPC |
+|---------|------|------|
+| Format | JSON / Prometheus Text | Protocol Buffers |
+| Port | 9090 (configurable) | 9091 (HTTP port + 1) |
+| Discovery | Documentation page | gRPC Reflection |
+| Tools | curl, wget, browsers | grpcurl, grpc_cli |
+| Streaming | Not supported | Ready for future implementation |
+
+### Testing gRPC
+
+Install `grpcurl` for testing:
+```bash
+# macOS
+brew install grpcurl
+
+# Linux
+wget https://github.com/fullstorydev/grpcurl/releases/download/v1.9.1/grpcurl_1.9.1_linux_x86_64.tar.gz
+tar -xvf grpcurl_1.9.1_linux_x86_64.tar.gz
+sudo mv grpcurl /usr/local/bin/
+
+# Test
+grpcurl -plaintext localhost:9091 list
+```
 
 ## Contributing
 
