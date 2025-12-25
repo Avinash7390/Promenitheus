@@ -12,7 +12,6 @@ import (
 	"github.com/Avinash7390/Promenitheus/pkg/grpcserver"
 	"github.com/Avinash7390/Promenitheus/pkg/metrics"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -59,12 +58,11 @@ func (s *Server) Start() error {
 	reflection.Register(s.grpcServer)
 
 	// Setup gRPC-Gateway (HTTP to gRPC translator)
+	// Use in-process connection instead of dialing back to ourselves
 	gwmux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	endpoint := fmt.Sprintf("localhost:%d", s.port)
 	
-	// Register gRPC-Gateway handlers
-	err = pb.RegisterMetricsServiceHandlerFromEndpoint(context.Background(), gwmux, endpoint, opts)
+	// Register gRPC-Gateway handlers with the server directly (no dial needed)
+	err = pb.RegisterMetricsServiceHandlerServer(context.Background(), gwmux, metricsServer)
 	if err != nil {
 		return fmt.Errorf("failed to register gateway: %w", err)
 	}

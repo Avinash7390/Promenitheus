@@ -127,8 +127,6 @@ grpcurl -plaintext localhost:9090 promenitheus.v1.MetricsService/ListMetrics
 ```
 
 **Note**: Both HTTP/1.1 and gRPC (HTTP/2) work on the **same port (9090)** thanks to connection multiplexing!
-grpcurl -plaintext localhost:9091 promenitheus.v1.MetricsService/ListMetrics
-```
 
 ## Configuration
 
