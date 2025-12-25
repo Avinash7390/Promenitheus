@@ -4,16 +4,30 @@ package promenitheus.v1;
 
 option go_package = "github.com/Avinash7390/Promenitheus/api/proto/v1;prometnitheusv1";
 
+import "google/api/annotations.proto";
+
 // MetricsService provides access to scraped metrics
 service MetricsService {
   // GetMetrics returns all metrics in Prometheus text format
-  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      get: "/metrics"
+    };
+  }
 
   // QueryMetrics queries metrics by name
-  rpc QueryMetrics(QueryMetricsRequest) returns (QueryMetricsResponse);
+  rpc QueryMetrics(QueryMetricsRequest) returns (QueryMetricsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/query"
+    };
+  }
 
   // ListMetrics returns all metrics in structured format
-  rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse);
+  rpc ListMetrics(ListMetricsRequest) returns (ListMetricsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/metrics"
+    };
+  }
 }
 
 message GetMetricsRequest {}

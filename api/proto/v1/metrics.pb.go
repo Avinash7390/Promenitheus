@@ -7,6 +7,7 @@
 package prometnitheusv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -373,7 +374,7 @@ var File_metrics_proto protoreflect.FileDescriptor
 
 const file_metrics_proto_rawDesc = "" +
 	"\n" +
-	"\rmetrics.proto\x12\x0fpromenitheus.v1\"\x13\n" +
+	"\rmetrics.proto\x12\x0fpromenitheus.v1\x1a\x1cgoogle/api/annotations.proto\"\x13\n" +
 	"\x11GetMetricsRequest\"Q\n" +
 	"\x12GetMetricsResponse\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\x12!\n" +
@@ -395,12 +396,13 @@ const file_metrics_proto_rawDesc = "" +
 	"\ttimestamp\x18\x05 \x01(\x03R\ttimestamp\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x9e\x02\n" +
-	"\x0eMetricsService\x12U\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xe0\x02\n" +
+	"\x0eMetricsService\x12g\n" +
 	"\n" +
-	"GetMetrics\x12\".promenitheus.v1.GetMetricsRequest\x1a#.promenitheus.v1.GetMetricsResponse\x12[\n" +
-	"\fQueryMetrics\x12$.promenitheus.v1.QueryMetricsRequest\x1a%.promenitheus.v1.QueryMetricsResponse\x12X\n" +
-	"\vListMetrics\x12#.promenitheus.v1.ListMetricsRequest\x1a$.promenitheus.v1.ListMetricsResponseBBZ@github.com/Avinash7390/Promenitheus/api/proto/v1;prometnitheusv1b\x06proto3"
+	"GetMetrics\x12\".promenitheus.v1.GetMetricsRequest\x1a#.promenitheus.v1.GetMetricsResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
+	"\x12\b/metrics\x12r\n" +
+	"\fQueryMetrics\x12$.promenitheus.v1.QueryMetricsRequest\x1a%.promenitheus.v1.QueryMetricsResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/api/v1/query\x12q\n" +
+	"\vListMetrics\x12#.promenitheus.v1.ListMetricsRequest\x1a$.promenitheus.v1.ListMetricsResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/api/v1/metricsBBZ@github.com/Avinash7390/Promenitheus/api/proto/v1;prometnitheusv1b\x06proto3"
 
 var (
 	file_metrics_proto_rawDescOnce sync.Once
