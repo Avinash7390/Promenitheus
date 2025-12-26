@@ -19,24 +19,20 @@ func main() {
 	port := flag.Int("port", 9090, "Port to expose metrics on")
 	flag.Parse()
 
-	// Load configuration
 	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create metric registry
 	registry := metrics.NewMetricRegistry()
 
-	// Create and start scraper
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	scr := scraper.NewScraper(cfg, registry)
 	scr.Start(ctx)
 
-	// Setup signal handling for graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
@@ -46,7 +42,6 @@ func main() {
 		cancel()
 	}()
 
-	// Start HTTP server
 	server := storage.NewServer(registry, *port)
 	if err := server.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error starting server: %v\n", err)
