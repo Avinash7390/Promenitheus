@@ -11,20 +11,17 @@ import (
 	"github.com/Avinash7390/Promenitheus/pkg/metrics"
 )
 
-// MetricsServer implements the gRPC MetricsService
 type MetricsServer struct {
 	pb.UnimplementedMetricsServiceServer
 	registry *metrics.MetricRegistry
 }
 
-// NewMetricsServer creates a new gRPC metrics server
 func NewMetricsServer(registry *metrics.MetricRegistry) *MetricsServer {
 	return &MetricsServer{
 		registry: registry,
 	}
 }
 
-// GetMetrics returns all metrics in Prometheus text format
 func (s *MetricsServer) GetMetrics(ctx context.Context, req *pb.GetMetricsRequest) (*pb.GetMetricsResponse, error) {
 	allMetrics := s.registry.GetAll()
 
@@ -95,7 +92,6 @@ func (s *MetricsServer) QueryMetrics(ctx context.Context, req *pb.QueryMetricsRe
 	}, nil
 }
 
-// ListMetrics returns all metrics in structured format
 func (s *MetricsServer) ListMetrics(ctx context.Context, req *pb.ListMetricsRequest) (*pb.ListMetricsResponse, error) {
 	var result []*pb.Metric
 
